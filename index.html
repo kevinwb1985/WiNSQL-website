@@ -1,0 +1,2396 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="WiNSQL - 一站式数据库开发与 API 发布平台，支持 5 种数据库，跨平台运行">
+    <title>WiNSQL - 让 SQL 成为可调用的服务</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* ==================== CSS Variables ==================== */
+        :root {
+            --navy-900: #0A1628;
+            --navy-800: #0F1E38;
+            --navy-700: #162B4D;
+            --navy-600: #1E3A5F;
+            --blue-600: #2563EB;
+            --blue-500: #3B82F6;
+            --blue-400: #60A5FA;
+            --cyan-500: #06B6D4;
+            --cyan-400: #22D3EE;
+            --white: #FFFFFF;
+            --gray-50: #F8FAFC;
+            --gray-100: #F1F5F9;
+            --gray-200: #E2E8F0;
+            --gray-300: #CBD5E1;
+            --gray-400: #94A3B8;
+            --gray-500: #64748B;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1E293B;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
+            --shadow-glow: 0 0 40px rgba(37, 99, 235, 0.3);
+            --font-heading: 'Plus Jakarta Sans', system-ui, sans-serif;
+            --font-body: 'Inter', system-ui, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+        }
+
+        /* ==================== Reset & Base ==================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            color: var(--navy-900);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: var(--font-heading);
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        /* ==================== Container ==================== */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* ==================== Section Common ==================== */
+        section {
+            position: relative;
+        }
+
+        .section-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--blue-600);
+            background: rgba(37, 99, 235, 0.08);
+            padding: 6px 16px;
+            border-radius: 100px;
+            margin-bottom: 16px;
+            letter-spacing: 0.02em;
+        }
+
+        .section-tag::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--cyan-500);
+        }
+
+        .section-title {
+            font-size: clamp(28px, 4vw, 42px);
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .section-subtitle {
+            font-size: 18px;
+            color: var(--gray-500);
+            max-width: 640px;
+            margin-bottom: 56px;
+        }
+
+        .section-title.light,
+        .section-subtitle.light {
+            color: var(--white);
+        }
+
+        .section-subtitle.light {
+            color: rgba(255,255,255,0.65);
+        }
+
+        /* ==================== Navbar ==================== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 16px 0;
+            transition: all 0.3s ease;
+        }
+
+        .navbar.scrolled {
+            background: rgba(10, 22, 40, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding: 12px 0;
+        }
+
+        .navbar .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-heading);
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--white);
+            letter-spacing: -0.02em;
+        }
+
+        .nav-logo-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--blue-600), var(--cyan-500));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .nav-links a {
+            color: rgba(255,255,255,0.75);
+            font-size: 15px;
+            font-weight: 500;
+            transition: color 0.2s;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--white);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--cyan-400);
+            border-radius: 2px;
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-cta {
+            background: linear-gradient(135deg, var(--blue-600), var(--blue-500));
+            color: var(--white) !important;
+            padding: 10px 24px;
+            border-radius: 100px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35);
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(37, 99, 235, 0.5);
+        }
+
+        .nav-cta::after {
+            display: none;
+        }
+
+        .nav-toggle {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            flex-direction: column;
+            gap: 5px;
+            padding: 8px;
+        }
+
+        .nav-toggle span {
+            width: 24px;
+            height: 2px;
+            background: var(--white);
+            border-radius: 2px;
+            transition: 0.3s;
+        }
+
+        /* ==================== Hero Section ==================== */
+        .hero {
+            background: var(--navy-900);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 120px 0 80px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+        }
+
+        .hero-bg::before {
+            content: '';
+            position: absolute;
+            top: -20%;
+            left: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.25) 0%, transparent 70%);
+            animation: floatMesh1 12s ease-in-out infinite;
+        }
+
+        .hero-bg::after {
+            content: '';
+            position: absolute;
+            bottom: -10%;
+            right: -10%;
+            width: 700px;
+            height: 700px;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.2) 0%, transparent 70%);
+            animation: floatMesh2 15s ease-in-out infinite;
+        }
+
+        @keyframes floatMesh1 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(50px, 30px) scale(1.1); }
+        }
+
+        @keyframes floatMesh2 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-40px, -40px) scale(1.15); }
+        }
+
+        .hero-grid {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(37, 99, 235, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(37, 99, 235, 0.04) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 80%);
+            -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 80%);
+        }
+
+        .hero .container {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: 1.1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .hero-content {
+            max-width: 600px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(37, 99, 235, 0.12);
+            border: 1px solid rgba(37, 99, 235, 0.3);
+            color: var(--blue-400);
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        .hero-badge .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--cyan-400);
+            box-shadow: 0 0 10px var(--cyan-400);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .hero h1 {
+            font-size: clamp(36px, 5.5vw, 60px);
+            font-weight: 800;
+            color: var(--white);
+            margin-bottom: 24px;
+            line-height: 1.1;
+        }
+
+        .hero h1 .gradient-text {
+            background: linear-gradient(135deg, var(--blue-400), var(--cyan-400));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 19px;
+            color: rgba(255,255,255,0.65);
+            margin-bottom: 36px;
+            line-height: 1.7;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 48px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 28px;
+            border-radius: 100px;
+            font-family: var(--font-body);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--blue-600), var(--blue-500));
+            color: var(--white);
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 36px rgba(37, 99, 235, 0.5);
+        }
+
+        .btn-ghost {
+            background: rgba(255,255,255,0.05);
+            color: var(--white);
+            border: 1px solid rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-ghost:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .hero-stat {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hero-stat-num {
+            font-family: var(--font-heading);
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--white);
+            line-height: 1;
+        }
+
+        .hero-stat-num .accent {
+            background: linear-gradient(135deg, var(--blue-400), var(--cyan-400));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-stat-label {
+            font-size: 14px;
+            color: rgba(255,255,255,0.5);
+            margin-top: 4px;
+        }
+
+        /* ==================== Hero Product Mockup ==================== */
+        .hero-mockup {
+            position: relative;
+        }
+
+        .hero-img-wrap {
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: 0 24px 80px rgba(0,0,0,0.4), 0 0 0 1px rgba(37, 99, 235, 0.1);
+            animation: mockupFloat 6s ease-in-out infinite;
+        }
+        .hero-img-wrap img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .mockup-window {
+            background: var(--navy-800);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: 0 24px 80px rgba(0,0,0,0.4), 0 0 0 1px rgba(37, 99, 235, 0.1);
+            animation: mockupFloat 6s ease-in-out infinite;
+        }
+
+        @keyframes mockupFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+
+        .mockup-titlebar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: var(--navy-700);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .mockup-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .mockup-dot.red { background: #FF5F57; }
+        .mockup-dot.yellow { background: #FEBC2E; }
+        .mockup-dot.green { background: #28C840; }
+
+        .mockup-title {
+            margin-left: 12px;
+            font-size: 13px;
+            color: rgba(255,255,255,0.5);
+            font-family: var(--font-mono);
+        }
+
+        .mockup-tabs {
+            display: flex;
+            background: var(--navy-700);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .mockup-tab {
+            padding: 10px 16px;
+            font-size: 12px;
+            color: rgba(255,255,255,0.4);
+            border-right: 1px solid rgba(255,255,255,0.06);
+            cursor: pointer;
+            font-family: var(--font-mono);
+        }
+
+        .mockup-tab.active {
+            background: var(--navy-800);
+            color: var(--blue-400);
+            border-bottom: 2px solid var(--blue-500);
+        }
+
+        .mockup-editor {
+            display: flex;
+            font-family: var(--font-mono);
+            font-size: 13px;
+        }
+
+        .mockup-linenumbers {
+            padding: 16px 12px;
+            background: var(--navy-800);
+            color: rgba(255,255,255,0.25);
+            text-align: right;
+            line-height: 1.8;
+            user-select: none;
+            border-right: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .mockup-code {
+            padding: 16px 16px;
+            line-height: 1.8;
+            flex: 1;
+        }
+
+        .code-kw { color: #C792EA; }
+        .code-fn { color: #82AAFF; }
+        .code-str { color: #C3E88D; }
+        .code-num { color: #F78C6C; }
+        .code-comment { color: rgba(255,255,255,0.3); font-style: italic; }
+        .code-var { color: #FFCB6B; }
+        .code-op { color: #89DDFF; }
+
+        .mockup-statusbar {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 16px;
+            background: var(--blue-600);
+            color: rgba(255,255,255,0.9);
+            font-size: 11px;
+            font-family: var(--font-mono);
+        }
+
+        .mockup-glow {
+            position: absolute;
+            top: 20%;
+            left: -10%;
+            width: 80%;
+            height: 80%;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.3) 0%, transparent 70%);
+            filter: blur(40px);
+            z-index: -1;
+        }
+
+        /* ==================== Features Section ==================== */
+        .features {
+            background: var(--white);
+            padding: 100px 0;
+        }
+
+        .features-header {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+
+        .features-header .section-title {
+            color: var(--navy-900);
+        }
+
+        .features-header .section-subtitle {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: rgba(255,255,255,0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            padding: 32px 28px;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--blue-600), var(--cyan-500));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-lg);
+            border-color: rgba(37, 99, 235, 0.2);
+        }
+
+        .feature-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .feature-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(6, 182, 212, 0.1));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            margin-bottom: 20px;
+            transition: all 0.35s;
+        }
+
+        .feature-card:hover .feature-icon {
+            background: linear-gradient(135deg, var(--blue-600), var(--cyan-500));
+            transform: scale(1.05);
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.3);
+        }
+
+        .feature-card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--navy-900);
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
+            font-size: 15px;
+            color: var(--gray-500);
+            line-height: 1.65;
+        }
+
+        /* ==================== Screenshots Section ==================== */
+        .screenshots {
+            background: var(--gray-50);
+            padding: 100px 0;
+        }
+
+        .screenshots-header {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+
+        .screenshots-header .section-title {
+            color: var(--navy-900);
+        }
+
+        .screenshots-header .section-subtitle {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .screenshots-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 32px;
+        }
+
+        .screenshot-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid var(--gray-200);
+        }
+
+        .screenshot-card:hover {
+            transform: scale(1.02);
+            box-shadow: var(--shadow-lg);
+            border-color: rgba(37, 99, 235, 0.2);
+        }
+
+        .screenshot-info {
+            padding: 24px 28px 8px;
+        }
+
+        .screenshot-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--blue-600);
+            background: rgba(37, 99, 235, 0.08);
+            padding: 4px 12px;
+            border-radius: 100px;
+            margin-bottom: 12px;
+        }
+
+        .screenshot-info h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--navy-900);
+            margin-bottom: 6px;
+        }
+
+        .screenshot-info p {
+            font-size: 14px;
+            color: var(--gray-500);
+        }
+
+        .screenshot-mock {
+            padding: 0 28px 28px;
+        }
+
+        /* === Screenshot Image === */
+        .screenshot-img-wrap {
+            background: var(--navy-800);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            border: 1px solid var(--gray-200);
+            box-shadow: 0 4px 20px rgba(10, 22, 40, 0.1);
+            transition: box-shadow 0.3s ease;
+        }
+        .screenshot-card:hover .screenshot-img-wrap {
+            box-shadow: 0 8px 32px rgba(37, 99, 235, 0.18);
+        }
+        .screenshot-img-wrap img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* === Mockup: SQL Editor === */
+        .mock-sql-editor {
+            background: var(--navy-800);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            border: 1px solid var(--gray-200);
+        }
+
+        .mock-sql-editor .mockup-titlebar {
+            background: var(--navy-700);
+        }
+
+        .mock-sql-body {
+            display: flex;
+            font-family: var(--font-mono);
+            font-size: 12px;
+        }
+
+        .mock-sql-lines {
+            padding: 12px 10px;
+            background: var(--navy-800);
+            color: rgba(255,255,255,0.2);
+            text-align: right;
+            line-height: 1.9;
+            border-right: 1px solid rgba(255,255,255,0.05);
+            min-width: 36px;
+        }
+
+        .mock-sql-code {
+            padding: 12px 14px;
+            line-height: 1.9;
+            color: rgba(255,255,255,0.85);
+            flex: 1;
+        }
+
+        .mock-error-line {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 3px solid #EF4444;
+            margin: 0 -14px 0 -14px;
+            padding: 0 14px;
+            margin-left: -17px;
+            padding-left: 14px;
+        }
+
+        .mock-sql-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: var(--navy-700);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .mock-sql-btn {
+            font-size: 11px;
+            padding: 4px 12px;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.05);
+            color: rgba(255,255,255,0.6);
+            font-family: var(--font-body);
+            cursor: pointer;
+        }
+
+        .mock-sql-btn.run {
+            background: var(--blue-600);
+            color: var(--white);
+        }
+
+        .mock-sql-btn.db {
+            background: rgba(6, 182, 212, 0.15);
+            color: var(--cyan-400);
+        }
+
+        /* === Mockup: My Assets === */
+        .mock-assets {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            border: 1px solid var(--gray-200);
+            display: flex;
+            height: 240px;
+        }
+
+        .mock-assets-tree {
+            width: 38%;
+            background: var(--gray-50);
+            border-right: 1px solid var(--gray-200);
+            padding: 12px;
+            font-size: 12px;
+            overflow: hidden;
+        }
+
+        .mock-tree-item {
+            padding: 5px 8px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--gray-600);
+            cursor: pointer;
+            margin-bottom: 2px;
+        }
+
+        .mock-tree-item.active {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--blue-600);
+            font-weight: 600;
+        }
+
+        .mock-tree-item.indent {
+            padding-left: 24px;
+        }
+
+        .mock-tree-item.indent2 {
+            padding-left: 40px;
+        }
+
+        .mock-tree-icon {
+            font-size: 13px;
+        }
+
+        .mock-assets-main {
+            flex: 1;
+            padding: 12px;
+            overflow: hidden;
+        }
+
+        .mock-db-tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .mock-db-tab {
+            font-size: 10px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 600;
+            border: 1px solid var(--gray-200);
+            color: var(--gray-500);
+        }
+
+        .mock-db-tab.active {
+            background: var(--blue-600);
+            color: var(--white);
+            border-color: var(--blue-600);
+        }
+
+        .mock-translate-box {
+            background: var(--gray-50);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            line-height: 1.7;
+            color: var(--gray-700);
+            border: 1px solid var(--gray-200);
+        }
+
+        .mock-translate-arrow {
+            text-align: center;
+            color: var(--blue-600);
+            font-size: 16px;
+            margin: 6px 0;
+        }
+
+        /* === Mockup: Postman === */
+        .mock-postman {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            border: 1px solid var(--gray-200);
+            height: 240px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mock-postman-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .mock-method {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 4px;
+            background: #F0FDF4;
+            color: #16A34A;
+            font-family: var(--font-mono);
+        }
+
+        .mock-url {
+            flex: 1;
+            font-size: 11px;
+            font-family: var(--font-mono);
+            color: var(--gray-500);
+            background: var(--gray-50);
+            padding: 5px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--gray-200);
+        }
+
+        .mock-send {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 5px 16px;
+            border-radius: 6px;
+            background: var(--blue-600);
+            color: var(--white);
+        }
+
+        .mock-postman-body {
+            flex: 1;
+            display: flex;
+            gap: 1px;
+            background: var(--gray-200);
+        }
+
+        .mock-postman-req {
+            flex: 1;
+            background: var(--white);
+            padding: 10px 12px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            overflow: hidden;
+        }
+
+        .mock-postman-resp {
+            flex: 1;
+            background: var(--navy-800);
+            padding: 10px 12px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: rgba(255,255,255,0.8);
+            overflow: hidden;
+        }
+
+        .mock-resp-header {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 8px;
+            font-size: 10px;
+        }
+
+        .mock-status-ok {
+            color: #4ADE80;
+            font-weight: 700;
+        }
+
+        .mock-resp-time {
+            color: var(--gray-400);
+        }
+
+        .mock-json-key { color: #82AAFF; }
+        .mock-json-str { color: #C3E88D; }
+        .mock-json-num { color: #F78C6C; }
+
+        /* === Mockup: Settings === */
+        .mock-settings {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            border: 1px solid var(--gray-200);
+            padding: 16px;
+            height: 240px;
+        }
+
+        .mock-settings-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--navy-900);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .mock-theme-switch {
+            display: flex;
+            background: var(--gray-100);
+            border-radius: 10px;
+            padding: 4px;
+            margin-bottom: 16px;
+        }
+
+        .mock-theme-opt {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 7px;
+            color: var(--gray-500);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .mock-theme-opt.active {
+            background: var(--white);
+            color: var(--blue-600);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .mock-theme-preview {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .mock-theme-card {
+            border-radius: 10px;
+            padding: 14px;
+            overflow: hidden;
+        }
+
+        .mock-theme-card.dark {
+            background: var(--navy-800);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .mock-theme-card.light {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+        }
+
+        .mock-theme-card-bar {
+            height: 8px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .mock-theme-card.dark .mock-theme-card-bar {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .mock-theme-card.dark .mock-theme-card-bar.accent {
+            background: var(--blue-500);
+        }
+
+        .mock-theme-card.light .mock-theme-card-bar {
+            background: var(--gray-300);
+        }
+
+        .mock-theme-card.light .mock-theme-card-bar.accent {
+            background: var(--blue-600);
+        }
+
+        .mock-theme-card-text {
+            height: 6px;
+            border-radius: 3px;
+            margin-bottom: 5px;
+        }
+
+        .mock-theme-card.dark .mock-theme-card-text {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .mock-theme-card.light .mock-theme-card-text {
+            background: var(--gray-200);
+        }
+
+        .mock-font-slider {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .mock-font-label {
+            font-size: 11px;
+            color: var(--gray-500);
+            min-width: 50px;
+        }
+
+        .mock-font-track {
+            flex: 1;
+            height: 4px;
+            background: var(--gray-200);
+            border-radius: 2px;
+            position: relative;
+        }
+
+        .mock-font-fill {
+            width: 60%;
+            height: 100%;
+            background: var(--blue-600);
+            border-radius: 2px;
+        }
+
+        .mock-font-knob {
+            position: absolute;
+            top: 50%;
+            left: 60%;
+            transform: translate(-50%, -50%);
+            width: 14px;
+            height: 14px;
+            background: var(--white);
+            border: 2px solid var(--blue-600);
+            border-radius: 50%;
+        }
+
+        /* ==================== Theme Comparison Section ==================== */
+        .theme-comparison {
+            background: var(--navy-900);
+            padding: 100px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .theme-comparison-bg {
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 60% 50% at 30% 20%, rgba(37, 99, 235, 0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 50% at 70% 80%, rgba(6, 182, 212, 0.1) 0%, transparent 60%);
+        }
+
+        .theme-comparison .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .theme-comparison-header {
+            text-align: center;
+            margin-bottom: 56px;
+        }
+
+        .theme-panels {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        .theme-panel {
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            border: 1px solid;
+            transition: transform 0.35s;
+        }
+
+        .theme-panel:hover {
+            transform: translateY(-4px);
+        }
+
+        .theme-panel.dark-panel {
+            background: var(--navy-800);
+            border-color: rgba(255,255,255,0.08);
+        }
+
+        .theme-panel.light-panel {
+            background: var(--white);
+            border-color: var(--gray-200);
+        }
+
+        .theme-panel-label {
+            padding: 10px 20px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid;
+        }
+
+        .dark-panel .theme-panel-label {
+            background: var(--navy-700);
+            color: rgba(255,255,255,0.7);
+            border-bottom-color: rgba(255,255,255,0.06);
+        }
+
+        .light-panel .theme-panel-label {
+            background: var(--gray-50);
+            color: var(--gray-600);
+            border-bottom-color: var(--gray-200);
+        }
+
+        .theme-panel-content {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .tp-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tp-sidebar {
+            width: 120px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .dark-panel .tp-sidebar {
+            background: rgba(255,255,255,0.03);
+        }
+
+        .light-panel .tp-sidebar {
+            background: var(--gray-50);
+        }
+
+        .tp-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+        }
+
+        .dark-panel .tp-nav-item {
+            color: rgba(255,255,255,0.5);
+        }
+
+        .dark-panel .tp-nav-item.active {
+            background: rgba(37, 99, 235, 0.2);
+            color: var(--blue-400);
+        }
+
+        .light-panel .tp-nav-item {
+            color: var(--gray-500);
+        }
+
+        .light-panel .tp-nav-item.active {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--blue-600);
+        }
+
+        .tp-main {
+            flex: 1;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            line-height: 1.8;
+        }
+
+        .dark-panel .tp-main {
+            background: rgba(255,255,255,0.02);
+        }
+
+        .light-panel .tp-main {
+            background: var(--gray-50);
+        }
+
+        .theme-caption {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .theme-caption p {
+            font-size: 16px;
+            color: rgba(255,255,255,0.6);
+        }
+
+        /* ==================== Server Section ==================== */
+        .server-section {
+            background: var(--bg-light);
+            padding: 100px 0;
+        }
+        .server-header {
+            text-align: center;
+            margin-bottom: 56px;
+        }
+        .server-header .section-title {
+            font-size: 36px;
+            color: var(--navy-900);
+            margin: 12px 0 8px;
+        }
+        .server-header .section-subtitle {
+            font-size: 16px;
+            color: var(--gray-500);
+        }
+        .server-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 28px;
+            margin-bottom: 48px;
+        }
+        .server-card {
+            background: var(--bg-white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .server-card:hover {
+            border-color: var(--blue-400);
+            box-shadow: 0 8px 32px rgba(37, 99, 235, 0.1);
+            transform: translateY(-3px);
+        }
+        .server-card-img {
+            width: 100%;
+            display: block;
+            border-bottom: 1px solid var(--gray-200);
+        }
+        .server-card-body {
+            padding: 24px;
+        }
+        .server-card-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 12px;
+        }
+        .server-card:nth-child(1) .server-card-icon {
+            background: rgba(37, 99, 235, 0.1);
+        }
+        .server-card:nth-child(2) .server-card-icon {
+            background: rgba(6, 182, 212, 0.1);
+        }
+        .server-card:nth-child(3) .server-card-icon {
+            background: rgba(34, 197, 94, 0.1);
+        }
+        .server-card:nth-child(4) .server-card-icon {
+            background: rgba(245, 158, 11, 0.1);
+        }
+        .server-card:nth-child(5) .server-card-icon {
+            background: rgba(239, 68, 68, 0.1);
+        }
+        .server-card h4 {
+            font-size: 18px;
+            color: var(--navy-900);
+            margin-bottom: 8px;
+        }
+        .server-card p {
+            font-size: 14px;
+            color: var(--gray-500);
+            line-height: 1.6;
+        }
+
+        /* ==================== Download Section ==================== */
+        .download {
+            background: linear-gradient(135deg, var(--navy-900) 0%, var(--navy-700) 50%, var(--blue-600) 100%);
+            padding: 100px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .download::before {
+            content: '';
+            position: absolute;
+            top: -30%;
+            right: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, transparent 70%);
+        }
+
+        .download .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .download-header {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+
+        .download-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            max-width: 920px;
+            margin: 0 auto;
+        }
+
+        .download-card {
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: var(--radius-lg);
+            padding: 36px 32px;
+            transition: all 0.35s;
+        }
+
+        .download-card:hover {
+            background: rgba(255,255,255,0.09);
+            border-color: rgba(255,255,255,0.2);
+            transform: translateY(-4px);
+        }
+
+        .download-card-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--blue-500), var(--cyan-500));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.3);
+        }
+
+        .download-card h3 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 8px;
+        }
+
+        .download-card-desc {
+            font-size: 14px;
+            color: rgba(255,255,255,0.55);
+            margin-bottom: 24px;
+        }
+
+        .download-btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .download-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: var(--radius-md);
+            color: var(--white);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .download-btn:hover {
+            background: rgba(37, 99, 235, 0.3);
+            border-color: rgba(37, 99, 235, 0.5);
+            transform: translateX(4px);
+        }
+
+        .download-btn-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .download-btn-icon {
+            font-size: 22px;
+        }
+
+        .download-btn-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .download-btn-title {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .download-btn-meta {
+            font-size: 12px;
+            color: rgba(255,255,255,0.45);
+            font-family: var(--font-mono);
+        }
+
+        .download-btn-arrow {
+            color: rgba(255,255,255,0.4);
+            font-size: 18px;
+            transition: transform 0.3s;
+        }
+
+        .download-btn:hover .download-btn-arrow {
+            transform: translateX(4px);
+            color: var(--white);
+        }
+
+        .download-req {
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .download-req-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .download-req-text {
+            font-size: 13px;
+            color: rgba(255,255,255,0.6);
+            line-height: 1.7;
+        }
+
+        .docker-cmd {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--cyan-400);
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .docker-cmd .copy-hint {
+            font-size: 11px;
+            color: rgba(255,255,255,0.3);
+            white-space: nowrap;
+        }
+
+        .download-version {
+            text-align: center;
+            margin-top: 48px;
+        }
+
+        .download-version .ver-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            padding: 10px 24px;
+            border-radius: 100px;
+            font-size: 14px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .download-version .ver-badge .ver-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4ADE80;
+            box-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
+        }
+
+        .download-note {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 13px;
+            color: rgba(255,255,255,0.4);
+        }
+
+        /* ==================== Footer ==================== */
+        .footer {
+            background: var(--navy-900);
+            padding: 64px 0 32px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .footer-top {
+            display: grid;
+            grid-template-columns: 1.5fr 2fr;
+            gap: 60px;
+            margin-bottom: 48px;
+        }
+
+        .footer-brand .nav-logo {
+            margin-bottom: 16px;
+        }
+
+        .footer-brand p {
+            font-size: 14px;
+            color: rgba(255,255,255,0.5);
+            max-width: 320px;
+            line-height: 1.7;
+        }
+
+        .footer-links {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+        }
+
+        .footer-col h4 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .footer-col ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-col ul li a {
+            font-size: 14px;
+            color: rgba(255,255,255,0.5);
+            transition: color 0.2s;
+        }
+
+        .footer-col ul li a:hover {
+            color: var(--cyan-400);
+        }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 32px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            font-size: 13px;
+            color: rgba(255,255,255,0.4);
+        }
+
+        .footer-bottom .icp {
+            color: rgba(255,255,255,0.3);
+        }
+
+        /* ==================== Scroll Animation ==================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1), transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
+        .reveal-delay-4 { transition-delay: 0.4s; }
+        .reveal-delay-5 { transition-delay: 0.5s; }
+
+        /* ==================== Responsive ==================== */
+        @media (max-width: 968px) {
+            .hero .container {
+                grid-template-columns: 1fr;
+                gap: 48px;
+            }
+
+            .hero-mockup {
+                max-width: 560px;
+                margin: 0 auto;
+            }
+
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .screenshots-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .server-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .download-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-top {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 280px;
+                height: 100vh;
+                background: var(--navy-800);
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 80px 24px 24px;
+                gap: 20px;
+                transition: right 0.3s;
+                border-left: 1px solid rgba(255,255,255,0.08);
+            }
+
+            .nav-links.open {
+                right: 0;
+            }
+
+            .nav-links a {
+                font-size: 16px;
+            }
+
+            .nav-toggle {
+                display: flex;
+                position: relative;
+                z-index: 1001;
+            }
+
+            .nav-toggle.open span:nth-child(1) {
+                transform: rotate(45deg) translate(5px, 5px);
+            }
+
+            .nav-toggle.open span:nth-child(2) {
+                opacity: 0;
+            }
+
+            .nav-toggle.open span:nth-child(3) {
+                transform: rotate(-45deg) translate(5px, -5px);
+            }
+
+            .hero-stats {
+                gap: 24px;
+            }
+
+            .hero-stat-num {
+                font-size: 26px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .theme-panels {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-links {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                gap: 12px;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-cta {
+                flex-direction: column;
+            }
+
+            .btn {
+                justify-content: center;
+            }
+
+            .mock-postman-body {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==================== Navbar ==================== -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <a href="#" class="nav-logo">
+                <span class="nav-logo-icon">SQL</span>
+                WiNSQL
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#features">产品特色</a></li>
+                <li><a href="#screenshots">功能截图</a></li>
+                <li><a href="#server">服务端</a></li>
+                <li><a href="#themes">主题预览</a></li>
+                <li><a href="#download">下载</a></li>
+                <li><a href="#docs">文档</a></li>
+                <li><a href="#download" class="nav-cta">立即下载</a></li>
+            </ul>
+            <button class="nav-toggle" id="navToggle" aria-label="菜单">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ==================== Hero Section ==================== -->
+    <section class="hero" id="home">
+        <div class="hero-bg"></div>
+        <div class="hero-grid"></div>
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="reveal reveal-delay-1">
+                    让 <span class="gradient-text">SQL</span> 成为<br>可调用的服务
+                </h1>
+                <p class="reveal reveal-delay-2">
+                    WiNSQL 是一站式数据库开发与 API 发布平台，支持 5 种数据库，跨平台运行。从 SQL 编写到接口发布，全流程覆盖。
+                </p>
+                <div class="hero-cta reveal reveal-delay-3">
+                    <a href="#download" class="btn btn-primary">
+                        下载客户端
+                        <span>&#8594;</span>
+                    </a>
+                    <a href="#download" class="btn btn-ghost">
+                        了解服务端
+                    </a>
+                </div>
+                <div class="hero-stats reveal reveal-delay-4">
+                    <div class="hero-stat">
+                        <span class="hero-stat-num"><span class="accent">5</span>种</span>
+                        <span class="hero-stat-label">数据库支持</span>
+                    </div>
+                    <div class="hero-stat">
+                        <span class="hero-stat-num"><span class="accent">跨</span>平台</span>
+                        <span class="hero-stat-label">Windows / macOS</span>
+                    </div>
+                    <div class="hero-stat">
+                        <span class="hero-stat-num"><span class="accent">开源</span></span>
+                        <span class="hero-stat-label">社区驱动</span>
+                    </div>
+                    <div class="hero-stat">
+                        <span class="hero-stat-num"><span class="accent">企业</span>级</span>
+                        <span class="hero-stat-label">集群治理</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-mockup reveal reveal-delay-3">
+                <div class="mockup-glow"></div>
+                <div class="hero-img-wrap">
+                    <img src="assets/screenshots/winsql-hero.png" alt="WiNSQL 客户端界面预览" />
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== Core Features Section ==================== -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="features-header reveal">
+                <span class="section-tag">核心能力</span>
+                <h2 class="section-title">核心特色</h2>
+                <p class="section-subtitle">从 SQL 智能编辑到 API 一键发布，从跨库翻译到集群治理，WiNSQL 覆盖数据库开发全链路</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card reveal">
+                    <div class="feature-icon">&#128295;</div>
+                    <h3>SQL 智能编辑器</h3>
+                    <p>语法高亮、错误标记、自动补全、多语句执行。支持 SqlServer、Oracle、MySQL、PostgreSQL、达梦五种数据库方言。</p>
+                </div>
+                <div class="feature-card reveal reveal-delay-1">
+                    <div class="feature-icon">&#128640;</div>
+                    <h3>一键发布 API</h3>
+                    <p>SQL 语句直接发布为 RESTful 接口，无需编码。客户端编写、服务端托管，一条 SQL 即一个可调用服务。</p>
+                </div>
+                <div class="feature-card reveal reveal-delay-2">
+                    <div class="feature-icon">&#128260;</div>
+                    <h3>跨库 SQL 翻译</h3>
+                    <p>5 种数据库函数自动翻译，告别手动改写。SqlServer、Oracle、MySQL、PostgreSQL、达梦间无缝切换。</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon">&#128225;</div>
+                    <h3>内置调试工具</h3>
+                    <p>Postman + SoapUI 工作台内置，接口调试零切换。HTTP 请求测试与 SOAP 协议调试一站式完成。</p>
+                </div>
+                <div class="feature-card reveal reveal-delay-1">
+                    <div class="feature-icon">&#127912;</div>
+                    <h3>双主题系统</h3>
+                    <p>深色 / 浅色主题自由切换，字体大小可调。遵循 WCAG 无障碍标准，适配不同工作环境与视觉需求。</p>
+                </div>
+                <div class="feature-card reveal reveal-delay-2">
+                    <div class="feature-icon">&#127970;</div>
+                    <h3>集群与治理</h3>
+                    <p>服务端集群管理、负载均衡、自动故障转移。内置熔断器与限流配置，保障 API 服务高可用。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== UI Screenshots Section ==================== -->
+    <section class="screenshots" id="screenshots">
+        <div class="container">
+            <div class="screenshots-header reveal">
+                <span class="section-tag">界面预览</span>
+                <h2 class="section-title">核心功能界面</h2>
+                <p class="section-subtitle">每一个界面都经过精心设计，专业、高效、直观</p>
+            </div>
+            <div class="screenshots-grid">
+                <!-- Screenshot 1: SQL Editor -->
+                <div class="screenshot-card reveal">
+                    <div class="screenshot-info">
+                        <span class="screenshot-label">&#128187; 编辑器</span>
+                        <h3>SQL 智能编辑器</h3>
+                        <p>语法高亮、错误标记、多语句执行、参数提示</p>
+                    </div>
+                    <div class="screenshot-mock">
+                        <div class="screenshot-img-wrap">
+                            <img src="assets/screenshots/sql-editor.png" alt="WiNSQL SQL智能编辑器界面" loading="lazy" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Screenshot 2: My Assets -->
+                <div class="screenshot-card reveal reveal-delay-1">
+                    <div class="screenshot-info">
+                        <span class="screenshot-label">&#128230; 资产管理</span>
+                        <h3>我的资产</h3>
+                        <p>SQL 资产管理与 5 种数据库跨库函数翻译</p>
+                    </div>
+                    <div class="screenshot-mock">
+                        <div class="screenshot-img-wrap">
+                            <img src="assets/screenshots/my-assets.png" alt="WiNSQL 我的资产管理界面" loading="lazy" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Screenshot 3: Postman Workbench -->
+                <div class="screenshot-card reveal">
+                    <div class="screenshot-info">
+                        <span class="screenshot-label">&#128225; 接口调试</span>
+                        <h3>Postman 工作台</h3>
+                        <p>内置 HTTP 请求调试，请求响应实时预览</p>
+                    </div>
+                    <div class="screenshot-mock">
+                        <div class="screenshot-img-wrap">
+                            <img src="assets/screenshots/postman.png" alt="WiNSQL Postman工作台界面" loading="lazy" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Screenshot 4: SoapUI Workbench -->
+                <div class="screenshot-card reveal reveal-delay-1">
+                    <div class="screenshot-info">
+                        <span class="screenshot-label">&#129520; 协议调试</span>
+                        <h3>SoapUI 工作台</h3>
+                        <p>SOAP/WSDL 协议调试，XML 请求响应解析</p>
+                    </div>
+                    <div class="screenshot-mock">
+                        <div class="screenshot-img-wrap">
+                            <img src="assets/screenshots/soapui.png" alt="WiNSQL SoapUI工作台界面" loading="lazy" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== Theme Comparison Section ==================== -->
+    <section class="theme-comparison" id="themes">
+        <div class="theme-comparison-bg"></div>
+        <div class="container">
+            <div class="theme-comparison-header reveal">
+                <span class="section-tag">主题系统</span>
+                <h2 class="section-title light">深色 / 浅色主题</h2>
+                <p class="section-subtitle light">同一界面，两种风格，一键切换</p>
+            </div>
+            <div class="theme-panels">
+                <!-- Dark Panel -->
+                <div class="theme-panel dark-panel reveal">
+                    <div class="theme-panel-label">&#9788; 深色主题</div>
+                    <div class="theme-panel-content">
+                        <div class="tp-row">
+                            <div class="tp-sidebar">
+                                <div class="tp-nav-item active">&#128187; 编辑器</div>
+                                <div class="tp-nav-item">&#128230; 资产</div>
+                                <div class="tp-nav-item">&#128225; 调试</div>
+                                <div class="tp-nav-item">&#9881; 设置</div>
+                            </div>
+                            <div class="tp-main">
+                                <span class="code-kw">SELECT</span> <span class="code-var">*</span> <span class="code-kw">FROM</span> <span class="code-fn">users</span><br>
+                                <span class="code-kw">WHERE</span> <span class="code-var">age</span> <span class="code-op">&gt;</span> <span class="code-num">18</span><br>
+                                <span class="code-kw">ORDER BY</span> <span class="code-var">name</span>;
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Light Panel -->
+                <div class="theme-panel light-panel reveal reveal-delay-1">
+                    <div class="theme-panel-label">&#9790; 浅色主题</div>
+                    <div class="theme-panel-content">
+                        <div class="tp-row">
+                            <div class="tp-sidebar">
+                                <div class="tp-nav-item active">&#128187; 编辑器</div>
+                                <div class="tp-nav-item">&#128230; 资产</div>
+                                <div class="tp-nav-item">&#128225; 调试</div>
+                                <div class="tp-nav-item">&#9881; 设置</div>
+                            </div>
+                            <div class="tp-main" style="color: var(--navy-800);">
+                                <span style="color: var(--blue-600); font-weight: 600;">SELECT</span> <span style="color: var(--gray-600);">*</span> <span style="color: var(--blue-600); font-weight: 600;">FROM</span> <span style="color: var(--cyan-500); font-weight: 600;">users</span><br>
+                                <span style="color: var(--blue-600); font-weight: 600;">WHERE</span> <span style="color: var(--gray-700);">age</span> <span style="color: var(--gray-500);">&gt;</span> <span style="color: #F97316;">18</span><br>
+                                <span style="color: var(--blue-600); font-weight: 600;">ORDER BY</span> <span style="color: var(--gray-700);">name</span>;
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="theme-caption reveal reveal-delay-2">
+                <p>一键切换，满足不同工作环境</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== Server Section ==================== -->
+    <section class="server-section" id="server">
+        <div class="container">
+            <div class="server-header reveal">
+                <span class="section-tag">服务端</span>
+                <h2 class="section-title">WiNSQL Server 服务端</h2>
+                <p class="section-subtitle">将客户端发布的 SQL 接口部署为生产级 API 服务，支持集群管理、流量治理与运维监控</p>
+            </div>
+            <div class="server-grid">
+                <!-- Server Card 1: API Management -->
+                <div class="server-card reveal">
+                    <img class="server-card-img" src="assets/screenshots/api-management.png" alt="WiNSQL Server 接口管理界面" loading="lazy" />
+                    <div class="server-card-body">
+                        <div class="server-card-icon">&#128229;</div>
+                        <h4>接口管理</h4>
+                        <p>统一管理客户端发布的 REST API 接口，支持接口启用/禁用、在线测试、参数查看与版本管理</p>
+                    </div>
+                </div>
+
+                <!-- Server Card 2: Cluster Management -->
+                <div class="server-card reveal reveal-delay-1">
+                    <img class="server-card-img" src="assets/screenshots/cluster-management.png" alt="WiNSQL Server 集群管理界面" loading="lazy" />
+                    <div class="server-card-body">
+                        <div class="server-card-icon">&#129513;</div>
+                        <h4>集群管理</h4>
+                        <p>多节点集群统一管理，实时监控各节点运行状态，支持节点上下线与负载均衡策略配置</p>
+                    </div>
+                </div>
+
+                <!-- Server Card 3: Circuit Breaker -->
+                <div class="server-card reveal">
+                    <img class="server-card-img" src="assets/screenshots/circuit-breaker.png" alt="WiNSQL Server 熔断器配置界面" loading="lazy" />
+                    <div class="server-card-body">
+                        <div class="server-card-icon">&#9889;</div>
+                        <h4>熔断器配置</h4>
+                        <p>自动熔断异常接口，防止故障扩散。可配置错误率阈值、熔断时长与半开恢复策略</p>
+                    </div>
+                </div>
+
+                <!-- Server Card 4: Rate Limiting -->
+                <div class="server-card reveal reveal-delay-1">
+                    <img class="server-card-img" src="assets/screenshots/rate-limiting.png" alt="WiNSQL Server 限流配置界面" loading="lazy" />
+                    <div class="server-card-body">
+                        <div class="server-card-icon">&#128230;</div>
+                        <h4>限流配置</h4>
+                        <p>按接口或 IP 维度配置请求限流，支持令牌桶与滑动窗口算法，保护后端数据库不被压垮</p>
+                    </div>
+                </div>
+
+                <!-- Server Card 5: Log Viewer -->
+                <div class="server-card reveal reveal-delay-2">
+                    <img class="server-card-img" src="assets/screenshots/server-logs.png" alt="WiNSQL Server 日志查看界面" loading="lazy" />
+                    <div class="server-card-body">
+                        <div class="server-card-icon">&#128196;</div>
+                        <h4>日志中心</h4>
+                        <p>实时查看服务端运行日志与接口调用记录，支持按级别、时间、关键词筛选，快速定位问题</p>
+                    </div>
+                </div>
+
+                <!-- Server Card 6: Deployment -->
+                <div class="server-card reveal reveal-delay-2">
+                    <div class="server-card-body" style="padding: 32px 24px; display: flex; flex-direction: column; justify-content: center; height: 100%; min-height: 200px;">
+                        <div class="server-card-icon">&#128640;</div>
+                        <h4>多平台部署</h4>
+                        <p style="margin-bottom: 16px;">支持 Windows Server、Linux 与 Docker 容器化部署，适配各类企业基础设施环境</p>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <span style="font-size: 12px; padding: 4px 10px; background: var(--gray-100); border-radius: 12px; color: var(--gray-600);">Windows Server</span>
+                            <span style="font-size: 12px; padding: 4px 10px; background: var(--gray-100); border-radius: 12px; color: var(--gray-600);">Ubuntu / CentOS</span>
+                            <span style="font-size: 12px; padding: 4px 10px; background: var(--gray-100); border-radius: 12px; color: var(--gray-600);">Docker</span>
+                            <span style="font-size: 12px; padding: 4px 10px; background: var(--gray-100); border-radius: 12px; color: var(--gray-600);">systemd</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== Download Section ==================== -->
+    <section class="download" id="download">
+        <div class="container">
+            <div class="download-header reveal">
+                <span class="section-tag">立即获取</span>
+                <h2 class="section-title light">立即下载</h2>
+                <p class="section-subtitle light">选择适合你平台的版本，即刻开启 SQL 服务化之旅</p>
+            </div>
+            <div class="download-grid">
+                <!-- Client Download -->
+                <div class="download-card reveal">
+                    <div class="download-card-icon">&#128187;</div>
+                    <h3>WiNSQL 客户端</h3>
+                    <p class="download-card-desc">跨平台桌面数据库开发工具，.NET 8 + Avalonia UI 构建</p>
+                    <div class="download-btn-group">
+                        <a href="https://github.com/kevinwb1985/winsql-releases/releases/download/v2.0.0/WiNSQL-Client-2.0.0-windows-x64.zip" class="download-btn" target="_blank" rel="noopener">
+                            <div class="download-btn-left">
+                                <span class="download-btn-icon">&#128187;</span>
+                                <div class="download-btn-text">
+                                    <span class="download-btn-title">Windows 版本</span>
+                                    <span class="download-btn-meta">.zip ~70MB</span>
+                                </div>
+                            </div>
+                            <span class="download-btn-arrow">&#8594;</span>
+                        </a>
+                        <a href="#" class="download-btn" onclick="alert('macOS 版本正在构建中，敬请期待'); return false;">
+                            <div class="download-btn-left">
+                                <span class="download-btn-icon">&#63743;</span>
+                                <div class="download-btn-text">
+                                    <span class="download-btn-title">macOS 版本</span>
+                                    <span class="download-btn-meta">即将发布</span>
+                                </div>
+                            </div>
+                            <span class="download-btn-arrow">&#8594;</span>
+                        </a>
+                    </div>
+                    <div class="download-req">
+                        <div class="download-req-title">系统要求</div>
+                        <div class="download-req-text">
+                            Windows 10+ / macOS 12+<br>
+                            .NET 8 Runtime（已内置）<br>
+                            个人版（JSON 存储）/ 专业版（数据库存储）
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Server Download -->
+                <div class="download-card reveal reveal-delay-1">
+                    <div class="download-card-icon">&#128230;</div>
+                    <h3>WiNSQL 服务端</h3>
+                    <p class="download-card-desc">服务端 API 托管平台，支持集群管理与治理配置</p>
+                    <div class="download-btn-group">
+                        <a href="https://github.com/kevinwb1985/winsql-releases/releases/download/v2.0.0/SqlQuick.Server-2.0.0-win-x64.zip" class="download-btn" target="_blank" rel="noopener">
+                            <div class="download-btn-left">
+                                <span class="download-btn-icon">&#128187;</span>
+                                <div class="download-btn-text">
+                                    <span class="download-btn-title">Windows Server</span>
+                                    <span class="download-btn-meta">.zip ~73MB</span>
+                                </div>
+                            </div>
+                            <span class="download-btn-arrow">&#8594;</span>
+                        </a>
+                        <a href="https://github.com/kevinwb1985/winsql-releases/releases/download/v2.0.0/SqlQuick.Server-2.0.0-linux-x64.tar.gz" class="download-btn" target="_blank" rel="noopener">
+                            <div class="download-btn-left">
+                                <span class="download-btn-icon">&#128039;</span>
+                                <div class="download-btn-text">
+                                    <span class="download-btn-title">Linux</span>
+                                    <span class="download-btn-meta">.tar.gz ~64MB</span>
+                                </div>
+                            </div>
+                            <span class="download-btn-arrow">&#8594;</span>
+                        </a>
+                        <div class="docker-cmd">
+                            <span>docker pull winsql/server:2.0</span>
+                            <span class="copy-hint">Docker</span>
+                        </div>
+                    </div>
+                    <div class="download-req">
+                        <div class="download-req-title">系统要求</div>
+                        <div class="download-req-text">
+                            Windows Server 2019+ / Ubuntu 20.04+ / CentOS 8+<br>
+                            Docker 环境可选 | 集群模式需多节点
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="download-version reveal reveal-delay-2">
+                <div class="ver-badge">
+                    <span class="ver-dot"></span>
+                    v2.0.0 | 更新日期: 2026-08-14
+                </div>
+            </div>
+            <div class="download-note reveal reveal-delay-2">
+                下载前请阅读系统要求说明
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== Footer ==================== -->
+    <footer class="footer" id="docs">
+        <div class="container">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <a href="#" class="nav-logo">
+                        <span class="nav-logo-icon">SQL</span>
+                        WiNSQL
+                    </a>
+                    <p>一站式数据库开发与 API 发布平台，让 SQL 成为可调用的服务。支持 5 种数据库，跨平台运行。</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-col">
+                        <h4>产品</h4>
+                        <ul>
+                            <li><a href="#features">产品特色</a></li>
+                            <li><a href="#screenshots">功能截图</a></li>
+                            <li><a href="#server">服务端</a></li>
+                            <li><a href="#themes">主题预览</a></li>
+                            <li><a href="#download">立即下载</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-col">
+                        <h4>文档</h4>
+                        <ul>
+                            <li><a href="#">产品文档</a></li>
+                            <li><a href="#">开发手册</a></li>
+                            <li><a href="#">更新日志</a></li>
+                            <li><a href="#">常见问题</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-col">
+                        <h4>关于</h4>
+                        <ul>
+                            <li><a href="#">关于我们</a></li>
+                            <li><a href="#">开源社区</a></li>
+                            <li><a href="#">联系方式</a></li>
+                            <li><a href="#">隐私政策</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>&copy; 2026 WiNSQL. All rights reserved.</span>
+                <span class="icp">备案号: XXXX</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ==================== JavaScript ==================== -->
+    <script>
+        // Navbar glass effect on scroll
+        (function() {
+            const navbar = document.getElementById('navbar');
+            let ticking = false;
+
+            function updateNavbar() {
+                if (window.scrollY > 40) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+                ticking = false;
+            }
+
+            window.addEventListener('scroll', function() {
+                if (!ticking) {
+                    window.requestAnimationFrame(updateNavbar);
+                    ticking = true;
+                }
+            }, { passive: true });
+
+            updateNavbar();
+        })();
+
+        // Mobile nav toggle
+        (function() {
+            const navToggle = document.getElementById('navToggle');
+            const navLinks = document.getElementById('navLinks');
+
+            navToggle.addEventListener('click', function() {
+                navToggle.classList.toggle('open');
+                navLinks.classList.toggle('open');
+            });
+
+            // Close mobile menu when clicking a link
+            navLinks.querySelectorAll('a').forEach(function(link) {
+                link.addEventListener('click', function() {
+                    navToggle.classList.remove('open');
+                    navLinks.classList.remove('open');
+                });
+            });
+        })();
+
+        // Smooth scroll for anchor links
+        (function() {
+            document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+                anchor.addEventListener('click', function(e) {
+                    var targetId = this.getAttribute('href');
+                    if (targetId === '#' || targetId.length < 2) return;
+                    var target = document.querySelector(targetId);
+                    if (target) {
+                        e.preventDefault();
+                        var offset = 80;
+                        var targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
+                        window.scrollTo({
+                            top: targetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        })();
+
+        // Scroll-triggered fade-in animations
+        (function() {
+            var reveals = document.querySelectorAll('.reveal');
+
+            if (!('IntersectionObserver' in window)) {
+                // Fallback: show all
+                reveals.forEach(function(el) {
+                    el.classList.add('visible');
+                });
+                return;
+            }
+
+            var observer = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '0px 0px -60px 0px'
+            });
+
+            reveals.forEach(function(el) {
+                observer.observe(el);
+            });
+        })();
+    </script>
+</body>
+</html>
