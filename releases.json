@@ -1,7 +1,20 @@
-﻿{
+{
   "client": {
-    "latest": "2.1.0",
+    "latest": "2.2.0",
     "releases": {
+      "2.2.0": {
+        "version": "2.2.0",
+        "date": "2026-09-30",
+        "downloads": {
+          "windows": "https://github.com/kevinwb1985/winsql-releases/releases/download/v2.2.0/WiNSQL-Client-2.2.0-windows-x64.zip",
+          "macos": ""
+        },
+        "sha256": {
+          "windows": "d647d58715220f0a8698095c7b01d1fb36eb076d53a5eff49626938636f08e9a",
+          "macos": ""
+        },
+        "changelog": "SQL编辑器新增“历史SQL找回”，多选自动保存的SQL一键加载到新查询标签页；主界面导航栏重新设计为工具栏式布局；修复接口发布向导入参/出参表格数据加载错误"
+      },
       "2.1.0": {
         "version": "2.1.0",
         "date": "2026-08-14",
@@ -31,8 +44,20 @@
     }
   },
   "server": {
-    "latest": "2.1.0",
+    "latest": "2.2.0",
     "releases": {
+      "2.2.0": {
+        "version": "2.2.0",
+        "date": "2026-09-30",
+        "downloads": {
+          "windows": "https://github.com/kevinwb1985/winsql-releases/releases/download/v2.2.0/SqlQuick.Server-2.2.0-win-x64.zip",
+          "linux": "https://github.com/kevinwb1985/winsql-releases/releases/download/v2.2.0/SqlQuick.Server-2.2.0-linux-x64.tar.gz"
+        },
+        "sha256": {
+          "windows": "332a28c3433625ee0320952decfa68ec61ebc8915d5e938e232d720f9ce00c3c",
+          "linux": "7359003296d1188ed8fbdc0907cd427d0f700bfd2a25417af454610d193c1e88"
+        }
+      },
       "2.1.0": {
         "version": "2.1.0",
         "date": "2026-08-14",
