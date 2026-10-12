@@ -1,7 +1,20 @@
 {
   "client": {
-    "latest": "2.2.0",
+    "latest": "2.3.0",
     "releases": {
+      "2.3.0": {
+        "version": "2.3.0",
+        "date": "2026-10-12",
+        "downloads": {
+          "windows": "https://github.com/kevinwb1985/winsql-releases/releases/download/v2.3.0/WiNSQL-Client-2.3.0-windows-x64.zip",
+          "macos": ""
+        },
+        "sha256": {
+          "windows": "8ea937087154dfcf228ed9f3e1ad9e38998c688573ab80543fdd1e9624e7b528",
+          "macos": ""
+        },
+        "changelog": "个人版免登录直接进入主界面；系统设置界面重构为左右布局；修复个人版初始化注册用户失败、导航按钮重复、SOAPUI侧栏标签切换失效、下载面板窗口切换闪现等问题"
+      },
       "2.2.0": {
         "version": "2.2.0",
         "date": "2026-09-30",
